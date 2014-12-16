@@ -21,6 +21,7 @@ class CodeBlockTimer(object):
         self.run_id = None
 
     def __enter__(self):
+        global __m
         if __m.nest_level == 0:
             self.run_id = self.data_store.run_id()
         __m.nest_level += 1
@@ -28,6 +29,7 @@ class CodeBlockTimer(object):
         return self
 
     def __exit__(self, *args):
+        global __m
         end = self.timer()
         self.elapsed_secs = end - self.start
         self.elapsed = self.elapsed_secs * 1000  # millisecs
