@@ -1,0 +1,13 @@
+
+CREATE TABLE test_run (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    run_desc TEXT
+);
+
+CREATE TABLE block_times (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    run_id INTEGER,
+    block_desc TEXT,
+    elapsed REAL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
