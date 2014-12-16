@@ -6,8 +6,8 @@ from .storage import TimingDataStorage
 class Globals(object):
     pass
 
-__m = Globals()
 global __m
+__m = Globals()
 
 __m.nest_level = 0
 
