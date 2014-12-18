@@ -7,7 +7,7 @@ import os
 
 class TimingDataStorage(object):
 
-    SCHEMA_NAME = "code_block_timer/code_block_timer/schema.sql"
+    SCHEMA_NAME = 'schema.sql'
     DEFAULT_DB_NAME = 'block_times.db'
 
     def __init__(self, **kwargs):
@@ -23,7 +23,8 @@ class TimingDataStorage(object):
         # Create the sqlite DB file.
         with open(db_name, "w") as f:
             conn = sqlite3.connect(db_name)
-            with open(self.SCHEMA_NAME, "r") as schema_file:
+            schema_filepath = os.path.join(os.path.dirname(__file__), self.SCHEMA_NAME)
+            with open(schema_filepath, "r") as schema_file:
                 schema = schema_file.read()
                 cur = conn.cursor()
                 conn.executescript(schema)
