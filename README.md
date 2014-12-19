@@ -7,7 +7,7 @@ Features
 
 Usage
 -----
-```
+```python
 from code_block_timer import CodeBlockTimer
 
 for i in xrange(0, 2):
