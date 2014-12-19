@@ -1,13 +1,17 @@
 
-import sqlite3
 import os
+import sqlite3
+from path import path
 
 # Assumes that the DB exists and the schema in schema.sql exists in it.
+
+MODULE_DIR = path(__file__).dirname()
 
 
 class TimingDataStorage(object):
 
     SCHEMA_NAME = 'schema.sql'
+    SCHEMA_PATH = MODULE_DIR / self.SCHEMA_NAME
     DEFAULT_DB_NAME = 'block_times.db'
 
     def __init__(self, **kwargs):
@@ -23,8 +27,7 @@ class TimingDataStorage(object):
         # Create the sqlite DB file.
         with open(db_name, "w") as f:
             conn = sqlite3.connect(db_name)
-            schema_filepath = os.path.join(os.path.dirname(__file__), self.SCHEMA_NAME)
-            with open(schema_filepath, "r") as schema_file:
+            with open(self.SCHEMA_PATH, "r") as schema_file:
                 schema = schema_file.read()
                 cur = conn.cursor()
                 conn.executescript(schema)

@@ -1,23 +1,23 @@
 
+import threading
 from timeit import default_timer
 from .storage import TimingDataStorage
 
 
-class Globals(object):
-    pass
+class Globals(threading.local):
+    # Current module-level nest stack.
+    # As CodeBlockTimer objects are __enter__ed, their descriptions are pushed
+    # onto this stack. The stack length indicates the current nesting level.
+    nest_stack = []
+
+    # Current run_id.
+    # Set from data storage when stack size increases from 0.
+    # While nest stack is populated, remains at a constant value.
+    # Identifies all the times from the same run.
+    run_id = None
+
 
 _m = Globals()
-
-# Current module-level nest stack.
-# As CodeBlockTimer objects are __enter__ed, their descriptions are pushed
-# onto this stack. The stack length indicates the current nesting level.
-_m.nest_stack = []
-
-# Current run_id.
-# Set from data storage when stack size increases from 0.
-# While nest stack is populated, remains at a constant value.
-# Identifies all the times from the same run.
-_m.run_id = None
 
 
 class CodeBlockTimer(object):
@@ -28,7 +28,6 @@ class CodeBlockTimer(object):
         self.data_store = TimingDataStorage(**kwargs)
 
     def __enter__(self):
-        global _m
         if len(_m.nest_stack) == 0:
             _m.run_id = self.data_store.run_id()
         _m.nest_stack.append(self.block_desc)
@@ -36,8 +35,6 @@ class CodeBlockTimer(object):
         return self
 
     def __exit__(self, *args):
-        global _m
-
         # Compute elapsed times.
         end = self.timer()
         self.elapsed_secs = end - self.start
