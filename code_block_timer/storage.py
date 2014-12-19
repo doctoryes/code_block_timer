@@ -24,7 +24,7 @@ MODULE_DIR = path(__file__).dirname()
 class TimingDataStorage(object):
 
     SCHEMA_NAME = 'schema.sql'
-    SCHEMA_PATH = MODULE_DIR / self.SCHEMA_NAME
+    SCHEMA_PATH = MODULE_DIR / SCHEMA_NAME
     DEFAULT_DB_NAME = 'block_times.db'
 
     def __init__(self, **kwargs):
