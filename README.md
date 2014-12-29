@@ -10,7 +10,7 @@ Usage
 ```python
 from code_block_timer import CodeBlockTimer
 
-for i in xrange(2):
+for __ in xrange(2):
     with CodeBlockTimer("all blocks"):
         performSetUp()
 
