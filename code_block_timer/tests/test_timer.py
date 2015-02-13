@@ -2,10 +2,13 @@
 import os
 import unittest
 import random
+import math
 import sqlite3
+import ddt
 from code_block_timer import CodeBlockTimer, _m
 
 
+@ddt.ddt
 class TestCodeBlockTimer(unittest.TestCase):
     """
     Tests for CodeBlockTimer.
@@ -28,11 +31,36 @@ class TestCodeBlockTimer(unittest.TestCase):
         iterations = ['iter0', 'iter1', 'iter2', 'iter3']
         with CodeBlockTimer("test", db_name=self.db_name) as timer:
             run_id = _m.run_id
-            z = 0
             for i, iter_name in enumerate(iterations):
                 with CodeBlockTimer(iter_name, db_name=self.db_name) as inner:
-                    z += i
+                    z = math.factorial(10)
         self._verifyEvents(run_id, ['test', ] + ["test:{}".format(x) for x in iterations])
+
+    def test_exception_handled(self):
+        msg = "exception_but_still_timed"
+        try:
+            with CodeBlockTimer(msg, db_name=self.db_name) as __:
+                run_id = _m.run_id
+                z = math.factorial(10)
+                raise Exception
+        except Exception:
+            pass
+        self._verifyEvents(run_id, [msg])
+
+    def test_default_delimiter(self):
+        with CodeBlockTimer("test", db_name=self.db_name) as timer:
+            run_id = _m.run_id
+            with CodeBlockTimer("delimiter", db_name=self.db_name) as inner:
+                z = math.factorial(10)
+        self._verifyEvents(run_id, ['test', 'test:delimiter'])
+
+    @ddt.data(':::::', '%', '-', '/')
+    def test_delimiters(self, delimiter):
+        with CodeBlockTimer("test", delimiter=delimiter, db_name=self.db_name) as timer:
+            run_id = _m.run_id
+            with CodeBlockTimer("delimiter", delimiter=delimiter, db_name=self.db_name) as inner:
+                z = math.factorial(10)
+        self._verifyEvents(run_id, ['test', 'test{}delimiter'.format(delimiter)])
 
     def tearDown(self):
         # Destroy the sqlite DB.
