@@ -15,16 +15,15 @@
 
 import os
 import sqlite3
-from path import path
 
 
-MODULE_DIR = path(__file__).dirname()
+MODULE_DIR = os.path.dirname(__file__)
 
 
 class TimingDataStorage(object):
 
     SCHEMA_NAME = 'schema.sql'
-    SCHEMA_PATH = MODULE_DIR / SCHEMA_NAME
+    SCHEMA_PATH = '%s/%s' % (MODULE_DIR, SCHEMA_NAME)
     DEFAULT_DB_NAME = 'block_times.db'
 
     def __init__(self, **kwargs):

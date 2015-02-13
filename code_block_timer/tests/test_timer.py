@@ -1,9 +1,10 @@
 
+import mock
 import os
 import unittest
 import random
 import sqlite3
-from code_block_timer import CodeBlockTimer, _m
+from code_block_timer import CodeBlockTimer, code_block_timer, _m
 
 
 class TestCodeBlockTimer(unittest.TestCase):
@@ -34,9 +35,31 @@ class TestCodeBlockTimer(unittest.TestCase):
                     z += i
         self._verifyEvents(run_id, ['test', ] + ["test:{}".format(x) for x in iterations])
 
+    @mock.patch('code_block_timer.storage.TimingDataStorage')
+    def test_decorator(self, mock_class):
+
+        store = mock.Mock()
+        mock_class.return_value = store
+        store.run_id.return_value = 45
+
+        @code_block_timer('decorator_test', db_name=self.db_name)
+        def wrapped_thing(*args, **kwargs):
+            self.assertEquals(args, ('an_arg',))
+            self.assertEquals(kwargs, {'a_dict': {}})
+            kwargs['a_dict'].update(entered=True)
+
+        test_dict = {}
+        run_id = wrapped_thing('an_arg', a_dict=test_dict)
+        mock_class.assert_called_once_with(db_name=self.db_name)
+        self.assertTrue(test_dict['entered'])
+        store.store.assert_called_with(45, 'decorator_test', mock.ANY)
+
     def tearDown(self):
-        # Destroy the sqlite DB.
-        os.remove(self.db_name)
+        try:
+            # Destroy the sqlite DB.
+            os.remove(self.db_name)
+        except:
+            pass
 
 if __name__ == '__main__':
     unittest.main()
