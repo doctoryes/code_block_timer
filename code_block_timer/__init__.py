@@ -40,7 +40,8 @@ class CodeBlockTimer(object):
         self.block_desc = block_desc
         self.verbose = False if 'verbose' not in kwargs else kwargs['verbose']
         self.timer = default_timer
-        self.data_store = storage.TimingDataStorage(**kwargs)
+        self.delimiter = kwargs.pop('delimiter', ':')
+        self.data_store = TimingDataStorage(**kwargs)
 
     def __enter__(self):
         if len(_m.nest_stack) == 0:
@@ -56,7 +57,7 @@ class CodeBlockTimer(object):
         self.elapsed = self.elapsed_secs * 1000  # millisecs
 
         # Store the timings.
-        nested_desc = ":".join(_m.nest_stack)
+        nested_desc = self.delimiter.join(_m.nest_stack)
         self.data_store.store(_m.run_id, nested_desc, self.elapsed)
 
         # Pop the stack.
