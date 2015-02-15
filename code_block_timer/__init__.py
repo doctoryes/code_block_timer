@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
 import threading
 from timeit import default_timer
-from .storage import TimingDataStorage
+
+import storage
 
 
 class Globals(threading.local):
@@ -38,7 +40,7 @@ class CodeBlockTimer(object):
         self.block_desc = block_desc
         self.verbose = False if 'verbose' not in kwargs else kwargs['verbose']
         self.timer = default_timer
-        self.data_store = TimingDataStorage(**kwargs)
+        self.data_store = storage.TimingDataStorage(**kwargs)
 
     def __enter__(self):
         if len(_m.nest_stack) == 0:
@@ -65,3 +67,13 @@ class CodeBlockTimer(object):
             print '{}: elapsed time: {} ms'.format(
                 self.block_desc, self.elapsed
             )
+
+
+def code_block_timer(block_desc, **cbt_kwargs):
+    def outer(func):
+        @functools.wraps(func)
+        def inner(*args, **kwargs):
+            with CodeBlockTimer(block_desc, **cbt_kwargs):
+                return func(*args, **kwargs)
+        return inner
+    return outer
