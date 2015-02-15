@@ -1,12 +1,12 @@
 
-import mock
 import os
 import unittest
 import random
 import math
 import sqlite3
-from code_block_timer import CodeBlockTimer, code_block_timer, _m
+import mock
 import ddt
+from code_block_timer import CodeBlockTimer, _m
 
 
 @ddt.ddt
@@ -37,14 +37,17 @@ class TestCodeBlockTimer(unittest.TestCase):
                     z = math.factorial(10)
         self._verifyEvents(run_id, ['test', ] + ["test:{}".format(x) for x in iterations])
 
-    @mock.patch('code_block_timer.storage.TimingDataStorage')
+    @mock.patch('code_block_timer.TimingDataStorage')
     def test_decorator(self, mock_class):
+        """
+        Test the decorator for timing - but mock out the storage.
+        """
+        timing_storage = mock.Mock()
+        timing_storage.run_id.return_value = 45
+        mock_class.return_value = timing_storage
 
-        store = mock.Mock()
-        mock_class.return_value = store
-        store.run_id.return_value = 45
-
-        @code_block_timer('decorator_test', db_name=self.db_name)
+        #@code_block_timer('decorator_test', db_name=self.db_name)
+        @CodeBlockTimer('decorator_test', db_name=self.db_name)
         def wrapped_thing(*args, **kwargs):
             self.assertEquals(args, ('an_arg',))
             self.assertEquals(kwargs, {'a_dict': {}})
@@ -52,9 +55,12 @@ class TestCodeBlockTimer(unittest.TestCase):
 
         test_dict = {}
         run_id = wrapped_thing('an_arg', a_dict=test_dict)
+        # Was the TimingStorage class itself constructed?
         mock_class.assert_called_once_with(db_name=self.db_name)
+        # Was wrapped_thing() called -and- did it complete?
         self.assertTrue(test_dict['entered'])
-        store.store.assert_called_with(45, 'decorator_test', mock.ANY)
+        # Did the TimingStorage.store() method get called with the proper params?
+        timing_storage.store.assert_called_with(45, 'decorator_test', mock.ANY)
 
     def test_exception_handled(self):
         msg = "exception_but_still_timed"
@@ -74,8 +80,8 @@ class TestCodeBlockTimer(unittest.TestCase):
                 z = math.factorial(10)
         self._verifyEvents(run_id, ['test', 'test:delimiter'])
 
-    @ddt.data(':::::', '%', '-', '/')
-    def test_delimiters(self, delimiter):
+    @ddt.data(':::::', '%', '-', '/', '')
+    def test_arbitrary_delimiters(self, delimiter):
         with CodeBlockTimer("test", delimiter=delimiter, db_name=self.db_name) as timer:
             run_id = _m.run_id
             with CodeBlockTimer("delimiter", delimiter=delimiter, db_name=self.db_name) as inner:

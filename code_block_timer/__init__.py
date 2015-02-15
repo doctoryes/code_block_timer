@@ -12,11 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import functools
 import threading
 from timeit import default_timer
-
-import storage
+from code_block_timer.storage import TimingDataStorage
 
 
 class Globals(threading.local):
@@ -69,12 +67,8 @@ class CodeBlockTimer(object):
                 self.block_desc, self.elapsed
             )
 
-
-def code_block_timer(block_desc, **cbt_kwargs):
-    def outer(func):
-        @functools.wraps(func)
-        def inner(*args, **kwargs):
-            with CodeBlockTimer(block_desc, **cbt_kwargs):
+    def __call__(self, func):
+        def wrapper(*args, **kwargs):
+            with self:
                 return func(*args, **kwargs)
-        return inner
-    return outer
+        return wrapper

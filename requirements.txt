@@ -1,3 +1,4 @@
 
+# Packages needed for testing only.
 ddt==1.0.0
-path.py==7.2
+mock==1.0.1
