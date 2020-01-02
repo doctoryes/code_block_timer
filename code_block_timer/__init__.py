@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import print_function
+
 import threading
 from timeit import default_timer
 from code_block_timer.storage import TimingDataStorage
@@ -63,9 +65,9 @@ class CodeBlockTimer(object):
         if len(_m.nest_stack) == 0:
             _m.run_id = None
         if self.verbose:
-            print '{}: elapsed time: {} ms'.format(
+            print('{}: elapsed time: {} ms'.format(
                 self.block_desc, self.elapsed
-            )
+            ))
 
     def __call__(self, func):
         def wrapper(*args, **kwargs):
