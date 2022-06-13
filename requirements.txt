@@ -1,4 +1,5 @@
 
 # Packages needed for testing only.
-ddt==1.0.0
-mock==1.0.1
+ddt
+mock
+pytest

@@ -1,11 +1,12 @@
 
-import os
-import unittest
-import random
-import math
-import sqlite3
-import mock
 import ddt
+import math
+import mock
+import os
+import random
+import sqlite3
+import unittest
+
 from code_block_timer import CodeBlockTimer, _m
 
 
@@ -26,7 +27,7 @@ class TestCodeBlockTimer(unittest.TestCase):
         cur = conn.cursor()
         for event in event_names:
             cur.execute("select count(*) from block_times where run_id=? and block_desc=?", (run_id, event))
-            self.assertEquals(cur.fetchone()[0], 1)
+            self.assertEqual(cur.fetchone()[0], 1)
 
     def test_stuff(self):
         iterations = ['iter0', 'iter1', 'iter2', 'iter3']
@@ -49,8 +50,8 @@ class TestCodeBlockTimer(unittest.TestCase):
         #@code_block_timer('decorator_test', db_name=self.db_name)
         @CodeBlockTimer('decorator_test', db_name=self.db_name)
         def wrapped_thing(*args, **kwargs):
-            self.assertEquals(args, ('an_arg',))
-            self.assertEquals(kwargs, {'a_dict': {}})
+            self.assertEqual(args, ('an_arg',))
+            self.assertEqual(kwargs, {'a_dict': {}})
             kwargs['a_dict'].update(entered=True)
 
         test_dict = {}
@@ -95,5 +96,3 @@ class TestCodeBlockTimer(unittest.TestCase):
         except:
             pass
 
-if __name__ == '__main__':
-    unittest.main()
